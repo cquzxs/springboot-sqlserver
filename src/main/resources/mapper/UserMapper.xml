@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.springbootsqlserver.dao.UserMapper">
+    <resultMap id="BaseResultMap" type="com.example.springbootsqlserver.entity.po.User">
+        <result column="user_id" jdbcType="NUMERIC" property="userId" />
+        <result column="username" jdbcType="VARCHAR" property="username" />
+        <result column="password" jdbcType="VARCHAR" property="password" />
+        <result column="create_time" jdbcType="VARCHAR" property="create_time" />
+        <result column="update_time" jdbcType="VARCHAR" property="update_time" />
+    </resultMap>
+    <sql id="selectModelsSql">
+        select user_id,username,password,create_time,update_time,ROW_NUMBER() OVER (ORDER BY user_id ASC) as rn from [user]
+    </sql>
+    <select id="selectModels" resultMap="BaseResultMap">
+        select a.*
+        from (
+        <include refid="selectModelsSql"></include>
+        ) a
+        <if test="fetchAll == false">
+            where a.rn <![CDATA[>=]]> #{pageStart,jdbcType=INTEGER} and a.rn <![CDATA[<=]]> #{pageEnd,jdbcType=INTEGER}
+        </if>
+    </select>
+    <select id="selectCount" resultType="int">
+        select count(*)
+        from (
+        <include refid="selectModelsSql"></include>
+        ) a
+    </select>
+</mapper>
